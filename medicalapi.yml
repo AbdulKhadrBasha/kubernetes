@@ -1,0 +1,47 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: medicineapi-deployment
+  namespace: medicine
+  labels:
+    app: medicineapi
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: medicineapi
+  template:
+    metadata:
+      labels:
+        app: medicineapi
+    spec:
+      nodeSelector:
+        kubernetes.io/os: windows
+        agentpool: winnp
+      containers:
+      - name: medicineapi
+        image: acrmedicalstore.azurecr.io/medicalapi:v2
+        ports:
+        - containerPort: 8080
+        resources:
+          requests:
+            memory: "200Mi"
+            cpu: "250m"
+          limits:
+              memory: "328Mi"
+              cpu: "500m"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: medicineapi-service
+  namespace: medicine
+  labels:
+    app: medicineapi
+spec:
+  type: LoadBalancer
+  ports:
+    - port: 80
+      targetPort: 8080
+  selector:
+    app: medicineapi
